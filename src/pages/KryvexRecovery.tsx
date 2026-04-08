@@ -129,19 +129,122 @@ const KryvexRecovery = () => {
   const validateStep = () => {
     switch (currentStep) {
       case 0:
-        return (
+        // Identity step - validate all required fields
+        const isIdentityValid = (
           form.fullName.trim() &&
           form.email.trim() &&
+          form.email.includes('@') &&
+          form.phone.trim() &&
+          form.phone.length >= 10 &&
           form.platform.trim() &&
           form.total &&
           Number(form.total) > 0
         );
-      case 1:
-        return form.proofFile !== null;
-      case 2:
+        
+        if (!isIdentityValid) {
+          let errorMessage = "Please fill all required fields:";
+          if (!form.fullName.trim()) errorMessage += " Full name,";
+          if (!form.email.trim() || !form.email.includes('@')) errorMessage += " Valid email,";
+          if (!form.phone.trim() || form.phone.length < 10) errorMessage += " Valid phone number,";
+          if (!form.platform.trim()) errorMessage += " Trading platform,";
+          if (!form.total || Number(form.total) <= 0) errorMessage += " Total amount,";
+          
+          toast({ 
+            title: errorMessage.replace(/,$/, ''), 
+            variant: "destructive" 
+          });
+          return false;
+        }
         return true;
+        
+      case 1:
+        // Verification step - require proof of funds file
+        if (!form.proofFile) {
+          toast({ 
+            title: "Please upload proof of funds document", 
+            description: "This document is required to verify your claim",
+            variant: "destructive" 
+          });
+          return false;
+        }
+        
+        // Validate file type and size
+        const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        
+        if (!allowedTypes.includes(form.proofFile.type)) {
+          toast({ 
+            title: "Invalid file format", 
+            description: "Please upload JPG, PNG, or PDF files only",
+            variant: "destructive" 
+          });
+          return false;
+        }
+        
+        if (form.proofFile.size > maxSize) {
+          toast({ 
+            title: "File too large", 
+            description: "Maximum file size is 10MB",
+            variant: "destructive" 
+          });
+          return false;
+        }
+        
+        return true;
+        
+      case 2:
+        // Calculation step - no validation needed, just display
+        return true;
+        
       case 3:
-        return (form.transactionId.trim() || form.paymentProof !== null) && form.selectedAddress;
+        // Payment step - require either transaction ID OR payment proof, AND selected address
+        const hasTransactionId = form.transactionId.trim();
+        const hasPaymentProof = form.paymentProof !== null;
+        const hasSelectedAddress = form.selectedAddress.trim();
+        
+        if (!hasSelectedAddress) {
+          toast({ 
+            title: "Please select a payment address", 
+            variant: "destructive" 
+          });
+          return false;
+        }
+        
+        if (!hasTransactionId && !hasPaymentProof) {
+          toast({ 
+            title: "Payment verification required", 
+            description: "Please enter transaction ID OR upload payment proof",
+            variant: "destructive" 
+          });
+          return false;
+        }
+        
+        // Validate payment proof file if uploaded
+        if (hasPaymentProof) {
+          const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+          const maxSize = 10 * 1024 * 1024; // 10MB
+          
+          if (!allowedTypes.includes(form.paymentProof.type)) {
+            toast({ 
+              title: "Invalid payment proof format", 
+              description: "Please upload JPG, PNG, or PDF files only",
+              variant: "destructive" 
+            });
+            return false;
+          }
+          
+          if (form.paymentProof.size > maxSize) {
+            toast({ 
+              title: "Payment proof file too large", 
+              description: "Maximum file size is 10MB",
+              variant: "destructive" 
+            });
+            return false;
+          }
+        }
+        
+        return true;
+        
       default:
         return true;
     }
@@ -509,6 +612,13 @@ const KryvexRecovery = () => {
               
               <CardContent className="relative z-10 space-y-4 px-4 sm:px-6 pb-4">
                 <div className="space-y-4">
+                  <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 mb-4">
+                    <p className="text-blue-300 text-xs sm:text-sm flex items-center gap-2">
+                      <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4" />
+                      All fields marked with * are required to proceed
+                    </p>
+                  </div>
+                  
                   <div className="space-y-2">
                     <Label className="text-slate-400 text-xs sm:text-sm font-medium flex items-center gap-2">
                       <User className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400" /> Full Name *
@@ -517,9 +627,14 @@ const KryvexRecovery = () => {
                       name="fullName"
                       value={form.fullName}
                       onChange={handleChange}
-                      placeholder="Enter your full name"
-                      className="bg-slate-800/50 border-slate-700 text-white placeholder-slate-500 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all h-11 sm:h-12 text-sm sm:text-base"
+                      placeholder="Enter your full name as on ID"
+                      className={`bg-slate-800/50 border-slate-700 text-white placeholder-slate-500 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all h-11 sm:h-12 text-sm sm:text-base ${
+                        !form.fullName.trim() && currentStep === 0 ? 'border-red-500/50' : ''
+                      }`}
                     />
+                    {!form.fullName.trim() && currentStep === 0 && (
+                      <p className="text-red-400 text-xs">Full name is required</p>
+                    )}
                   </div>
                   
                   <div className="space-y-2">
