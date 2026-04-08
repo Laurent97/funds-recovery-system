@@ -130,6 +130,16 @@ const KryvexRecovery = () => {
     switch (currentStep) {
       case 0:
         // Identity step - validate all required fields
+        // Validate URL format for trading platform
+        const isValidUrl = (url: string) => {
+          try {
+            new URL(url);
+            return url.startsWith('http://') || url.startsWith('https://');
+          } catch {
+            return false;
+          }
+        };
+
         const isIdentityValid = (
           form.fullName.trim() &&
           form.email.trim() &&
@@ -137,6 +147,7 @@ const KryvexRecovery = () => {
           form.phone.trim() &&
           form.phone.length >= 10 &&
           form.platform.trim() &&
+          isValidUrl(form.platform) &&
           form.total &&
           Number(form.total) > 0
         );
@@ -146,7 +157,8 @@ const KryvexRecovery = () => {
           if (!form.fullName.trim()) errorMessage += " Full name,";
           if (!form.email.trim() || !form.email.includes('@')) errorMessage += " Valid email,";
           if (!form.phone.trim() || form.phone.length < 10) errorMessage += " Valid phone number,";
-          if (!form.platform.trim()) errorMessage += " Trading platform,";
+          if (!form.platform.trim()) errorMessage += " Trading platform URL,";
+          if (form.platform.trim() && !isValidUrl(form.platform)) errorMessage += " Valid trading platform URL,";
           if (!form.total || Number(form.total) <= 0) errorMessage += " Total amount,";
           
           toast({ 
@@ -666,15 +678,22 @@ const KryvexRecovery = () => {
                   
                   <div className="space-y-2">
                     <Label className="text-slate-400 text-xs sm:text-sm font-medium flex items-center gap-2">
-                      <Building2 className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400" /> Trading Platform *
+                      <Building2 className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400" /> Trading Platform URL *
                     </Label>
                     <Input
                       name="platform"
+                      type="url"
                       value={form.platform}
                       onChange={handleChange}
-                      placeholder="e.g., Binance, Coinbase, Kraken"
-                      className="bg-slate-800/50 border-slate-700 text-white placeholder-slate-500 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all h-11 sm:h-12 text-sm sm:text-base"
+                      placeholder="https://www.binance.com"
+                      className={`bg-slate-800/50 border-slate-700 text-white placeholder-slate-500 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all h-11 sm:h-12 text-sm sm:text-base ${
+                        !form.platform.trim() && currentStep === 0 ? 'border-red-500/50' : ''
+                      }`}
                     />
+                    {!form.platform.trim() && currentStep === 0 && (
+                      <p className="text-red-400 text-xs">Trading platform URL is required</p>
+                    )}
+                    <p className="text-slate-500 text-xs">Enter the complete URL of your trading platform (e.g., https://www.binance.com)</p>
                   </div>
                 </div>
                 
