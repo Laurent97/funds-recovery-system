@@ -1,0 +1,28 @@
+<svg width="200" height="60" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1e40af;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- K Letter -->
+  <path d="M10 15 L10 45 L15 45 L15 32 L25 45 L31 45 L20 30 L30 15 L24 15 L15 28 L15 15 Z" fill="url(#logoGradient)"/>
+  
+  <!-- Shield/Security Icon -->
+  <g transform="translate(35, 15)">
+    <path d="M10 2 L10 2 C10 2 2 5 2 10 C2 20 10 25 10 25 C10 25 18 20 18 10 C18 5 10 2 10 2 Z" 
+          fill="none" stroke="url(#logoGradient)" stroke-width="2"/>
+    <path d="M7 12 L9 14 L13 10" fill="none" stroke="url(#logoGradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  
+  <!-- KRYVEX Text -->
+  <text x="60" y="35" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#1e40af">KRYVEX</text>
+  
+  <!-- TRADING Text -->
+  <text x="60" y="48" font-family="Arial, sans-serif" font-size="10" fill="#64748b">TRADING</text>
+  
+  <!-- Funds Recovery System -->
+  <text x="130" y="35" font-family="Arial, sans-serif" font-size="8" fill="#94a3b8">Funds Recovery</text>
+  <text x="130" y="44" font-family="Arial, sans-serif" font-size="8" fill="#94a3b8">System</text>
+</svg>
